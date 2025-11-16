@@ -21,7 +21,7 @@
 	int		iEstadisticas[]			:	Arreglo con el numero de veces que aparecen las palabras en el diccionario
 	int &	iNumElementos			:	Numero de elementos en el diccionario
 ******************************************************************************************************************/
-void	Diccionario			(char *szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[], int &iNumElementos)
+void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[], int& iNumElementos)
 {
 	int a = 0;
 	//Se busca el documento
@@ -37,7 +37,7 @@ void	Diccionario			(char *szNombre, char szPalabras[][TAMTOKEN], int iEstadistic
 		{
 			char buffer[TAMTOKEN];
 			fscanf_s(fp, "%s", buffer, TAMTOKEN);
-			strlwr(buffer);
+			_strlwr_s(buffer, 49);
 
 			//BORRA LOS CARACTERES INVALIDOS
 			char signos[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'ñ', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'á', 'é', 'í', 'ó', 'ú' };
@@ -57,9 +57,10 @@ void	Diccionario			(char *szNombre, char szPalabras[][TAMTOKEN], int iEstadistic
 				}
 			}
 			//DEJA LAS PALABRAS 100% VALIDAS
-			for (int pasada = 0; pasada < strlen(buffer); pasada++)
+			int longitud = strlen(buffer);
+			for (int pasada = 0; pasada <= longitud; pasada++)
 			{
-				for (int i = 0; i < strlen(buffer); i++)
+				for (int i = 0; i <= longitud; i++)
 				{
 					if (buffer[i] == ' ')
 					{
@@ -80,24 +81,93 @@ void	Diccionario			(char *szNombre, char szPalabras[][TAMTOKEN], int iEstadistic
 		printf("ERROR");
 	}
 
+	//ORDENAR ALFABETICAMENTE LAS PALABRAS
+	char  aux[TAMTOKEN];
+	int comp;
+
+	for (int pasada = 0; pasada <= a - 2; pasada++)
+	{
+		for (int i = 0; i <= a - 2; i++)
+		{
+			comp = strcmp(szPalabras[i], szPalabras[i + 1]);//EN C EL RESULTADO DE CMP ES UN VALOR TEMPORAL, ES POR ESO QUE SE DEBE GUARDAR EN UNA VARIABLE
+			if (comp == 1)
+			{
+				strcpy_s(aux, 49, szPalabras[i]);
+				strcpy_s(szPalabras[i], 49, szPalabras[i + 1]);
+				strcpy_s(szPalabras[i + 1], 49, aux);
+			}
+
+
+		}
+	}
 
 	
-	int indice = 0;
-	for (int i = 0; i < a+1; i++)
+	//SACAR LAS FRECUENCIAS DE LAS PALABRAS
+	int asignar = 0;
+	for (int i = 0; i <= a - 1; i++)
 	{
-		if (szPalabras[i] != " ");
+		int repet = 1;
+
+		if (strcmp(szPalabras[i], szPalabras[i - 1]) != 0)
 		{
-			if (strcmp(szPalabras[indice], szPalabras[i]) == 0)
+			for (int z = i + 1; z < a-1; z++)
 			{
-				strcpy_s(szPalabras[i], 49, " ");
+				if (strcmp(szPalabras[i], szPalabras[z]) == 0)
+				{
+					repet++;
+				}
 			}
-			indice++;
+			iEstadisticas[asignar] = repet;
+			asignar++;
 		}
 	}
 
 
-}
+	//ORDENAR ALFABETICAMENTE TODAS LAS PALABRAS
+	for (int indice = 0; indice < a ; indice++)
+	{
+		if ((szPalabras[indice] != " "))
+		{
+			for (int i = indice + 1; (i < a) ; i++)
+			{
+				if (strcmp(szPalabras[indice], szPalabras[i]) == 0)
+				{
+					strcpy_s(szPalabras[i], 49, " ");
+				}
 
+			}
+		}
+	}
+	
+	
+
+
+
+	//DEJA A LAS PALABRAS JUNTAS EN EL ARRAY
+	for (int pasada = 0; pasada < a ; pasada++)
+	{
+		for (int i = 0; i < a-1 ; i++)
+		{
+			int b = i + 1;
+			if (strcmp(szPalabras[i], " ") == 0)
+			{
+				strcpy_s(szPalabras[i], 49, szPalabras[b]);
+				strcpy_s(szPalabras[b], 49, " ");
+			}
+		}
+
+	}
+
+	int frecuencia = 0;
+	for (int i = 0; i < a; i++)
+	{
+		if (strcmp(szPalabras[i], " ") != 0)
+		{
+			frecuencia++;
+		}
+	}
+	iNumElementos = frecuencia;
+}
 /*****************************************************************************************************************
 	ListaCandidatas: Esta funcion recupera desde el diccionario las palabras validas y su peso
 	Regresa las palabras ordenadas por su peso
