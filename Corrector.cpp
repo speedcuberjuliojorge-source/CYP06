@@ -35,20 +35,52 @@ void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[
 		//LEER SOLO LOS CARACTERES ALFABETICOS Y  GUARDARLOS EN EL ARRAY 2D
 		do
 		{
+			char signos[] = { ' ', '\t', '\n', ',', ';', '(', ')','\r', '.'};
+			char buff[TAMTOKEN];
 			char buffer[TAMTOKEN];
+			int ab = 0;
+
 			fscanf_s(fp, "%s", buffer, TAMTOKEN);
-			_strlwr_s(buffer, 49);
+
+
+
+			/*int len = strlen(buffer);
+
+			int Bfin = false;
+			for (int i = 0; i <=len ; i++)
+			{
+				
+				for (int j = 0; j < 8 ; j++)
+				{
+					if (buff[i] == signos[j])
+					{
+						buff[i] = ' ';
+					}
+				}
+				buffer[ab] = buff[i];
+				ab++;
+			}
+
+
+				buffer[ab] = '\0';*/
+
+
+			_strlwr_s(buffer, TAMTOKEN);
 
 			//BORRA LOS CARACTERES INVALIDOS
-			char signos[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'ñ', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'á', 'é', 'í', 'ó', 'ú' };
+			//char signos[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'ñ', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'á', 'é', 'í', 'ó', 'ú'};
 			for (int j = 0; j < strlen(buffer); j++)
 			{
-				int banValida = false;
-				for (int i = 0; (i < 32) && (banValida == false); i++)
+				int banValida = true;
+				for (int i = 0; (i < 9) && (banValida == true); i++)
 				{
-					if (buffer[j] == signos[i])
+					if (buffer[j] != signos[i])
 					{
 						banValida = true;
+					}
+					else
+					{
+						banValida = false;
 					}
 				}
 				if (banValida == false)
@@ -70,8 +102,9 @@ void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[
 				}
 			}
 			//ASIGNA EL VALOR ACTUAL DE BUFFER AL ARREGLO szPalabras
-			strcpy_s(szPalabras[a], 49, buffer);
-			a++;
+				strcpy_s(szPalabras[a], TAMTOKEN, buffer);
+				a++;
+
 
 		} while (!feof(fp));
 		fclose(fp);
