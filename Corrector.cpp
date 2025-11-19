@@ -13,6 +13,7 @@
 #include "stdafx.h"
 #include <string.h>
 #include "corrector.h"
+#include <stdio.h>
 //Funciones publicas del proyecto
 /*****************************************************************************************************************
 	DICCIONARIO: Esta funcion crea el diccionario completo
@@ -35,75 +36,64 @@ void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[
 		//LEER SOLO LOS CARACTERES ALFABETICOS Y  GUARDARLOS EN EL ARRAY 2D
 		do
 		{
-			char signos[] = { ' ', '\t', '\n', ',', ';', '(', ')','\r', '.'};
-			char buff[TAMTOKEN];
+			int pos = 0;
+			char signos[] = {' ', '\t', '\n', ',', ';', '(', ')','\r', '.' };
+			char buff;
+			int banInvalida = false;
 			char buffer[TAMTOKEN];
-			int ab = 0;
+			int fin=1, palabrasInicio=0;
 
-			fscanf_s(fp, "%s", buffer, TAMTOKEN);
-
-
-
-			/*int len = strlen(buffer);
-
-			int Bfin = false;
-			for (int i = 0; i <=len ; i++)
+			//banInvalida retorna true cuando haya un caracter invalida
+			while (!feof(fp))
 			{
 				
-				for (int j = 0; j < 8 ; j++)
+				banInvalida = false;
+				fscanf_s(fp, "%c", &buff, 1);
+				for (int i = 0; i <= 8; i++)
 				{
-					if (buff[i] == signos[j])
+					if (buff == signos[i])
 					{
-						buff[i] = ' ';
+						banInvalida = true;
 					}
 				}
-				buffer[ab] = buff[i];
-				ab++;
+
+
+				if (banInvalida == false)
+				{
+					buffer[pos] = buff;
+					pos++;
+				}
+				else
+				{
+					int banFor = false;
+
+					for (int contaFinal = 0; contaFinal <= 8 &&  banFor==false; contaFinal++)
+					{
+						if (buff == signos[contaFinal] && pos == 0)
+						{
+							strcpy_s(buffer, 2, " ");
+							strcpy_s(szPalabras[a], TAMTOKEN, buffer);
+							
+							banFor = true;
+						}
+		
+					}
+					if (!banFor)
+					{
+						buffer[pos] = '\0';
+						_strlwr_s(buffer, TAMTOKEN);
+						strcpy_s(szPalabras[a], TAMTOKEN, buffer);
+						a++;
+						pos = 0;
+					}
+
+				}
+				palabrasInicio++;
 			}
+				
 
 
-				buffer[ab] = '\0';*/
-
-
-			_strlwr_s(buffer, TAMTOKEN);
-
-			//BORRA LOS CARACTERES INVALIDOS
-			//char signos[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'ñ', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'á', 'é', 'í', 'ó', 'ú'};
-			for (int j = 0; j < strlen(buffer); j++)
-			{
-				int banValida = true;
-				for (int i = 0; (i < 9) && (banValida == true); i++)
-				{
-					if (buffer[j] != signos[i])
-					{
-						banValida = true;
-					}
-					else
-					{
-						banValida = false;
-					}
-				}
-				if (banValida == false)
-				{
-					buffer[j] = ' ';
-				}
-			}
-			//DEJA LAS PALABRAS 100% VALIDAS
-			int longitud = strlen(buffer);
-			for (int pasada = 0; pasada <= longitud; pasada++)
-			{
-				for (int i = 0; i <= longitud; i++)
-				{
-					if (buffer[i] == ' ')
-					{
-						buffer[i] = buffer[i + 1];
-						buffer[i + 1] = ' ';
-					}
-				}
-			}
-			//ASIGNA EL VALOR ACTUAL DE BUFFER AL ARREGLO szPalabras
-				strcpy_s(szPalabras[a], TAMTOKEN, buffer);
-				a++;
+			
 
 
 		} while (!feof(fp));
@@ -134,7 +124,7 @@ void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[
 		}
 	}
 
-	
+
 	//SACAR LAS FRECUENCIAS DE LAS PALABRAS
 	int asignar = 0;
 	for (int i = 0; i <= a - 1; i++)
@@ -143,7 +133,7 @@ void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[
 
 		if (strcmp(szPalabras[i], szPalabras[i - 1]) != 0)
 		{
-			for (int z = i + 1; z < a-1; z++)
+			for (int z = i + 1; z <= a - 1; z++)
 			{
 				if (strcmp(szPalabras[i], szPalabras[z]) == 0)
 				{
@@ -157,11 +147,11 @@ void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[
 
 
 	//ORDENAR ALFABETICAMENTE TODAS LAS PALABRAS
-	for (int indice = 0; indice < a ; indice++)
+	for (int indice = 0; indice < a; indice++)
 	{
 		if ((szPalabras[indice] != " "))
 		{
-			for (int i = indice + 1; (i < a) ; i++)
+			for (int i = indice + 1; (i < a); i++)
 			{
 				if (strcmp(szPalabras[indice], szPalabras[i]) == 0)
 				{
@@ -171,15 +161,15 @@ void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[
 			}
 		}
 	}
-	
-	
+
+
 
 
 
 	//DEJA A LAS PALABRAS JUNTAS EN EL ARRAY
-	for (int pasada = 0; pasada < a ; pasada++)
+	for (int pasada = 0; pasada < a; pasada++)
 	{
-		for (int i = 0; i < a-1 ; i++)
+		for (int i = 0; i < a - 1; i++)
 		{
 			int b = i + 1;
 			if (strcmp(szPalabras[i], " ") == 0)
