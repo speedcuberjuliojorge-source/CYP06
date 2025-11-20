@@ -8,8 +8,6 @@
 	Quiso decir: Programa principal de la aplicacion de la distancia de Levenstein.
 	
 ******************************************************************************************************************/
-
-
 #include "stdafx.h"
 #include <string.h>
 #include "corrector.h"
@@ -28,11 +26,9 @@ void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[
 	//Se busca el documento
 	FILE* fp;
 	fopen_s(&fp, szNombre, "r");
-
 	//Si encuentra el documento
 	if (fp != NULL)
 	{
-
 		//LEER SOLO LOS CARACTERES ALFABETICOS Y  GUARDARLOS EN EL ARRAY 2D
 		do
 		{
@@ -41,61 +37,74 @@ void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[
 			char buff;
 			int banInvalida = false;
 			char buffer[TAMTOKEN];
-			int fin=1, palabrasInicio=0;
-
-			//banInvalida retorna true cuando haya un caracter invalida
+			int fin=1;
 			while (!feof(fp))
 			{
-				
+				int banCompa = false;
+				//se asegura que el caracter sea valido
 				banInvalida = false;
 				fscanf_s(fp, "%c", &buff, 1);
-				for (int i = 0; i <= 8; i++)
+				for (int i = 0; i <= 8 && banInvalida == false; i++)
 				{
 					if (buff == signos[i])
 					{
 						banInvalida = true;
 					}
 				}
-
-
+				//si es caracter valido, agregar a palabra
 				if (banInvalida == false)
 				{
 					buffer[pos] = buff;
 					pos++;
 				}
+				//si no es caracter invalido, dejar listo para comparar/guardar
 				else
 				{
+					//Si el caracter es unico e invalido, no guardar
 					int banFor = false;
-
-					for (int contaFinal = 0; contaFinal <= 8 &&  banFor==false; contaFinal++)
-					{
-						if (buff == signos[contaFinal] && pos == 0)
+						if (pos == 0)
 						{
-							strcpy_s(buffer, 2, " ");
-							strcpy_s(szPalabras[a], TAMTOKEN, buffer);
-							
 							banFor = true;
 						}
-		
-					}
 					if (!banFor)
 					{
 						buffer[pos] = '\0';
 						_strlwr_s(buffer, TAMTOKEN);
-						strcpy_s(szPalabras[a], TAMTOKEN, buffer);
-						a++;
 						pos = 0;
+						banCompa = true;
 					}
-
 				}
-				palabrasInicio++;
-			}
-				
-
-
-			
-
-
+				//LISTO PARA COMPARAR
+				if (banCompa)
+				{
+					int repetido = 0;
+					int banUnico = true, banBloqueo = false;
+					int banFinalizar = false;
+					banUnico = true;
+					for (int comp = 0; (comp < a) && (comp != a); comp++)
+					{
+						//si no es igual, dejar banUnico como true 
+						if (strcmp(buffer, szPalabras[comp]) != 0)
+						{
+						}
+						//si es igual, agregar un valor 
+						else
+						{
+							repetido = comp;
+							iEstadisticas[repetido]++;
+							banFinalizar = true;
+							banUnico = false;
+						}
+					}
+					//si la banUnico se dejo como true, agregar la palabra y su frecuencia 1 a su arreglo
+					if (banUnico)
+					{
+						strcpy_s(szPalabras[a], TAMTOKEN, buffer);
+						iEstadisticas[a] = 1;
+						a++;
+					}
+				}
+			}				
 		} while (!feof(fp));
 		fclose(fp);
 	}
@@ -103,11 +112,9 @@ void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[
 	{
 		printf("ERROR");
 	}
-
 	//ORDENAR ALFABETICAMENTE LAS PALABRAS
 	char  aux[TAMTOKEN];
-	int comp;
-
+	int comp, auxfrec;
 	for (int pasada = 0; pasada <= a - 2; pasada++)
 	{
 		for (int i = 0; i <= a - 2; i++)
@@ -116,80 +123,15 @@ void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[
 			if (comp == 1)
 			{
 				strcpy_s(aux, 49, szPalabras[i]);
+				auxfrec = iEstadisticas[i];
 				strcpy_s(szPalabras[i], 49, szPalabras[i + 1]);
+				iEstadisticas[i] = iEstadisticas[i + 1];
 				strcpy_s(szPalabras[i + 1], 49, aux);
-			}
-
-
-		}
-	}
-
-
-	//SACAR LAS FRECUENCIAS DE LAS PALABRAS
-	int asignar = 0;
-	for (int i = 0; i <= a - 1; i++)
-	{
-		int repet = 1;
-
-		if (strcmp(szPalabras[i], szPalabras[i - 1]) != 0)
-		{
-			for (int z = i + 1; z <= a - 1; z++)
-			{
-				if (strcmp(szPalabras[i], szPalabras[z]) == 0)
-				{
-					repet++;
-				}
-			}
-			iEstadisticas[asignar] = repet;
-			asignar++;
-		}
-	}
-
-
-	//ORDENAR ALFABETICAMENTE TODAS LAS PALABRAS
-	for (int indice = 0; indice < a; indice++)
-	{
-		if ((szPalabras[indice] != " "))
-		{
-			for (int i = indice + 1; (i < a); i++)
-			{
-				if (strcmp(szPalabras[indice], szPalabras[i]) == 0)
-				{
-					strcpy_s(szPalabras[i], 49, " ");
-				}
-
+				iEstadisticas[i + 1] = auxfrec;
 			}
 		}
 	}
-
-
-
-
-
-	//DEJA A LAS PALABRAS JUNTAS EN EL ARRAY
-	for (int pasada = 0; pasada < a; pasada++)
-	{
-		for (int i = 0; i < a - 1; i++)
-		{
-			int b = i + 1;
-			if (strcmp(szPalabras[i], " ") == 0)
-			{
-				strcpy_s(szPalabras[i], 49, szPalabras[b]);
-				strcpy_s(szPalabras[b], 49, " ");
-			}
-		}
-
-	}
-
-	int frecuencia = 0;
-	for (int i = 0; i < a; i++)
-	{
-		if (strcmp(szPalabras[i], " ") != 0)
-		{
-			frecuencia++;
-		}
-	}
-	iNumElementos = frecuencia;
+	iNumElementos = a;
 }
 /*****************************************************************************************************************
 	ListaCandidatas: Esta funcion recupera desde el diccionario las palabras validas y su peso
