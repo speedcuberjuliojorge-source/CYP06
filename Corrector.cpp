@@ -2,11 +2,11 @@
 	UNIVERSIDAD NACIONAL AUTONOMA DE MEXICO
 	FACULTAD DE ESTUDIOS SUPERIORES -ARAGON-
 
-	Computadoras y programacion. 
+	Computadoras y programacion.
 	Cruz Trujillo Julio Jorge 323290687
-	
+
 	Quiso decir: Programa principal de la aplicacion de la distancia de Levenstein.
-	
+
 ******************************************************************************************************************/
 #include "stdafx.h"
 #include <string.h>
@@ -15,7 +15,7 @@
 //Funciones publicas del proyecto
 /*****************************************************************************************************************
 	DICCIONARIO: Esta funcion crea el diccionario completo
-	char *	szNombre				:	Nombre del archivo de donde se sacaran las palabras del diccionario	
+	char *	szNombre				:	Nombre del archivo de donde se sacaran las palabras del diccionario
 	char	szPalabras[][TAMTOKEN]	:	Arreglo con las palabras completas del diccionario
 	int		iEstadisticas[]			:	Arreglo con el numero de veces que aparecen las palabras en el diccionario
 	int &	iNumElementos			:	Numero de elementos en el diccionario
@@ -33,11 +33,11 @@ void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[
 		do
 		{
 			int pos = 0;
-			char signos[] = {' ', '\t', '\n', ',', ';', '(', ')','\r', '.' };
+			char signos[] = { ' ', '\t', '\n', ',', ';', '(', ')','\r', '.' };
 			char buff;
 			int banInvalida = false;
 			char buffer[TAMTOKEN];
-			int fin=1;
+			int fin = 1;
 			while (!feof(fp))
 			{
 				int banCompa = false;
@@ -62,10 +62,10 @@ void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[
 				{
 					//Si el caracter es unico e invalido, no guardar
 					int banFor = false;
-						if (pos == 0)
-						{
-							banFor = true;
-						}
+					if (pos == 0)
+					{
+						banFor = true;
+					}
 					if (!banFor)
 					{
 						buffer[pos] = '\0';
@@ -104,7 +104,7 @@ void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[
 						a++;
 					}
 				}
-			}				
+			}
 		} while (!feof(fp));
 		fclose(fp);
 	}
@@ -145,7 +145,7 @@ void	Diccionario(char* szNombre, char szPalabras[][TAMTOKEN], int iEstadisticas[
 	int		iPeso[],							//Peso de las palabras en la lista final
 	int &	iNumLista)							//Numero de elementos en la szListaFinal
 ******************************************************************************************************************/
-void	ListaCandidatas		(
+void	ListaCandidatas(
 	char	szPalabrasSugeridas[][TAMTOKEN],	//Lista de palabras clonadas
 	int		iNumSugeridas,						//Lista de palabras clonadas
 	char	szPalabras[][TAMTOKEN],				//Lista de palabras del diccionario
@@ -153,13 +153,13 @@ void	ListaCandidatas		(
 	int		iNumElementos,						//Numero de elementos en el diccionario
 	char	szListaFinal[][TAMTOKEN],			//Lista final de palabras a sugerir
 	int		iPeso[],							//Peso de las palabras en la lista final
-	int &	iNumLista)							//Numero de elementos en la szListaFinal
+	int& iNumLista)							//Numero de elementos en la szListaFinal
 {
 
 	//Sustituya estas lineas por su c�digo
-	strcpy(szListaFinal[0], szPalabrasSugeridas[ 0] ); //la palabra candidata
+	strcpy(szListaFinal[0], szPalabrasSugeridas[0]); //la palabra candidata
 	iPeso[0] = iEstadisticas[0];			// el peso de la palabra candidata
-	
+
 	iNumLista = 1;							//Una sola palabra candidata
 }
 
@@ -170,11 +170,72 @@ void	ListaCandidatas		(
 	int &	iNumSugeridas)						//Numero de elementos en la lista
 ******************************************************************************************************************/
 void	ClonaPalabras(
-	char *	szPalabraLeida,						// Palabra a clonar
+	char* szPalabraLeida,						// Palabra a clonar
 	char	szPalabrasSugeridas[][TAMTOKEN], 	//Lista de palabras clonadas
-	int &	iNumSugeridas)						//Numero de elementos en la lista
+	int& iNumSugeridas)						//Numero de elementos en la lista
 {
-	//Sustituya estas lineas por su c�digo
-	strcpy(szPalabrasSugeridas[0], szPalabraLeida); //lo que sea que se capture, es sugerencia
-	iNumSugeridas = 1;							//Una sola palabra sugerida
+	iNumSugeridas = 0;
+	int longiPalabra = strlen(szPalabraLeida);
+	char szPalabraLeidaModif[TAMTOKEN];
+
+	//SUPRECION
+	for (int i = 0; i < longiPalabra; i++)
+	{
+		strcpy_s(szPalabraLeidaModif, TAMTOKEN, szPalabraLeida);
+		szPalabraLeidaModif[i] = ' ';
+		for (int y = i; y <= longiPalabra; y++)
+		{
+			szPalabraLeidaModif[y] = szPalabraLeidaModif[y + 1];
+		}
+		strcpy_s(szPalabrasSugeridas[iNumSugeridas], TAMTOKEN, szPalabraLeidaModif);
+		iNumSugeridas++;
+	}
+
+	//TRASPOCICION
+	for (int i = 0; i < longiPalabra-1; i++)
+	{
+		strcpy_s(szPalabraLeidaModif, TAMTOKEN, szPalabraLeida);
+		char aux = szPalabraLeidaModif[i];
+		szPalabraLeidaModif[i] = szPalabraLeidaModif[i + 1];
+		szPalabraLeidaModif[i + 1] = aux;
+		strcpy_s(szPalabrasSugeridas[iNumSugeridas], TAMTOKEN, szPalabraLeidaModif);
+		iNumSugeridas++;
+	}
+
+	//SUSTITUCION
+	char alfabeto[] = { 'a','b','c','d','e','f','g','h','i','j','k','l','m','n','ñ','o','p','q','r','s','t','u','v','w','x','y','z','á','é','í','ó','ú' };
+	for (int i = 0; i < longiPalabra; i++)
+	{
+		for (int y = 0; y <= 31; y++)
+		{
+			strcpy_s(szPalabraLeidaModif, TAMTOKEN, szPalabraLeida);
+			szPalabraLeidaModif[i] = alfabeto[y];
+			strcpy_s(szPalabrasSugeridas[iNumSugeridas], TAMTOKEN, szPalabraLeidaModif);
+			iNumSugeridas++;
+		}
+
+	}
+
+	//INSERCION
+	int y = 1;
+	strcpy_s(szPalabraLeidaModif, TAMTOKEN, " ");
+	for (int i = 0; i <= longiPalabra; i++)
+	{
+			szPalabraLeidaModif[y] = szPalabraLeida[i];
+			y += 2;
+	}
+	strcpy_s(szPalabraLeida, TAMTOKEN, szPalabraLeidaModif);
+	
+
+	strcpy_s(szPalabraLeidaModif, TAMTOKEN, szPalabraLeida);
+	int validLongi = strlen(szPalabraLeidaModif);
+	for (int i = 0; i < validLongi; i += 2)
+	{
+		for (int y = 0; y <= 31; y++)
+		{
+			szPalabraLeidaModif[i] = alfabeto[y];
+			strcpy_s(szPalabrasSugeridas[iNumSugeridas], TAMTOKEN, szPalabraLeidaModif);
+			iNumSugeridas++;
+		}
+	}
 }
