@@ -177,20 +177,24 @@ void	ClonaPalabras(
 	iNumSugeridas = 0;
 	int longiPalabra = strlen(szPalabraLeida);
 	char szPalabraLeidaModif[TAMTOKEN];
-
+	strcpy_s(szPalabrasSugeridas[iNumSugeridas], TAMTOKEN,szPalabraLeida );
+	iNumSugeridas++;
 	//SUPRECION
+	strcpy_s(szPalabraLeidaModif, TAMTOKEN, szPalabraLeida);
 	for (int i = 0; i < longiPalabra; i++)
 	{
-		strcpy_s(szPalabraLeidaModif, TAMTOKEN, szPalabraLeida);
-		szPalabraLeidaModif[i] = ' ';
-		for (int y = i; y <= longiPalabra; y++)
+		if (longiPalabra != 1)
 		{
-			szPalabraLeidaModif[y] = szPalabraLeidaModif[y + 1];
+			strcpy_s(szPalabraLeidaModif, TAMTOKEN, szPalabraLeida);
+			szPalabraLeidaModif[i] = ' ';
+			for (int y = i; y < longiPalabra; y++)
+			{
+				szPalabraLeidaModif[y] = szPalabraLeidaModif[y + 1];
+			}
+			strcpy_s(szPalabrasSugeridas[iNumSugeridas], TAMTOKEN, szPalabraLeidaModif);
+			iNumSugeridas++;
 		}
-		strcpy_s(szPalabrasSugeridas[iNumSugeridas], TAMTOKEN, szPalabraLeidaModif);
-		iNumSugeridas++;
 	}
-
 	//TRASPOCICION
 	for (int i = 0; i < longiPalabra-1; i++)
 	{
@@ -201,9 +205,8 @@ void	ClonaPalabras(
 		strcpy_s(szPalabrasSugeridas[iNumSugeridas], TAMTOKEN, szPalabraLeidaModif);
 		iNumSugeridas++;
 	}
-
 	//SUSTITUCION
-	char alfabeto[] = { 'a','b','c','d','e','f','g','h','i','j','k','l','m','n','ñ','o','p','q','r','s','t','u','v','w','x','y','z','á','é','í','ó','ú' };
+	char alfabeto[] = { 'a','b','c','d','e','f','g','h','i','j','k','l','m','n',(char)0xF1,'o','p','q','r','s','t','u','v','w','x','y','z',(char)0xE1,(char)0xE9,(char)0xED,(char)0xF3,(char)0xFA};
 	for (int i = 0; i < longiPalabra; i++)
 	{
 		for (int y = 0; y <= 31; y++)
@@ -215,27 +218,46 @@ void	ClonaPalabras(
 		}
 
 	}
-
 	//INSERCION
-	int y = 1;
-	strcpy_s(szPalabraLeidaModif, TAMTOKEN, " ");
-	for (int i = 0; i <= longiPalabra; i++)
-	{
-			szPalabraLeidaModif[y] = szPalabraLeida[i];
-			y += 2;
-	}
-	strcpy_s(szPalabraLeida, TAMTOKEN, szPalabraLeidaModif);
-	
+	char buffer[TAMTOKEN];
+	int posInterrupcion = 0;
+	int longiPalabraLeida = strlen(szPalabraLeida);
 
-	strcpy_s(szPalabraLeidaModif, TAMTOKEN, szPalabraLeida);
-	int validLongi = strlen(szPalabraLeidaModif);
-	for (int i = 0; i < validLongi; i += 2)
+	for (int longi = 0; longi <= longiPalabraLeida; longi++)
 	{
-		for (int y = 0; y <= 31; y++)
+		strcpy_s(szPalabraLeidaModif, TAMTOKEN, szPalabraLeida);
+		
+		for (int posabc = 0; posabc <= 31; posabc++)
 		{
-			szPalabraLeidaModif[i] = alfabeto[y];
-			strcpy_s(szPalabrasSugeridas[iNumSugeridas], TAMTOKEN, szPalabraLeidaModif);
+			int posPalabraBase = 0;
+			for (int posPalabra = 0; posPalabra <= longiPalabraLeida+1; posPalabra++)
+			{
+				if (posPalabra == posInterrupcion)
+				{
+					buffer[posPalabra] = alfabeto[posabc];
+				}
+				else
+				{
+					buffer[posPalabra] = szPalabraLeidaModif[posPalabraBase];
+					posPalabraBase++;
+				}
+			}
+			strcpy_s(szPalabrasSugeridas[iNumSugeridas], TAMTOKEN, buffer);
 			iNumSugeridas++;
+		}
+		posInterrupcion++;
+	}
+	char auxBurb[TAMTOKEN];
+	for (int corrida = 0; corrida < iNumSugeridas-1; corrida++)
+	{
+		for (int x = 0; x < iNumSugeridas-1; x++)
+		{
+			if (strcmp(szPalabrasSugeridas[x], szPalabrasSugeridas[x + 1]) > 0)
+			{
+				strcpy_s(auxBurb, TAMTOKEN, szPalabrasSugeridas[x]);
+				strcpy_s(szPalabrasSugeridas[x], TAMTOKEN, szPalabrasSugeridas[x + 1]);
+				strcpy_s(szPalabrasSugeridas[x + 1], TAMTOKEN, auxBurb);
+			}
 		}
 	}
 }
