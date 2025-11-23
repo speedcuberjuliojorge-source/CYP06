@@ -155,12 +155,76 @@ void	ListaCandidatas(
 	int		iPeso[],							//Peso de las palabras en la lista final
 	int& iNumLista)							//Numero de elementos en la szListaFinal
 {
+	iNumLista = 0;
+	
 
-	//Sustituya estas lineas por su c�digo
-	strcpy(szListaFinal[0], szPalabrasSugeridas[0]); //la palabra candidata
-	iPeso[0] = iEstadisticas[0];			// el peso de la palabra candidata
+	for (int i = 0; i < iNumElementos; i++)
+	{
+		int frecuencia = 0;
+		int banGuardar = false;
+		for (int y = 0; y < iNumSugeridas; y++)
+		{
+			if ((strcmp(szPalabras[i], szPalabrasSugeridas[y]) == 0) && (frecuencia==0))
+			{
+				strcpy_s(szListaFinal[iNumLista], TAMTOKEN, szPalabrasSugeridas[y]);
+				frecuencia++;
+				banGuardar = true;
+			}
+			else if((strcmp(szPalabras[i], szPalabrasSugeridas[y]) == 0) && (frecuencia != 0))
+			{
+				frecuencia++;
+			}
+		}
+		if (banGuardar)
+		{
+			iPeso[iNumLista] = frecuencia;
+			iNumLista++;
+		}
+	}
 
-	iNumLista = 1;							//Una sola palabra candidata
+
+
+
+		/*for (int y = 0; y < iNumSugeridas; y++)
+		{
+				strcpy_s(szListaFinal[iNumLista], TAMTOKEN, szPalabrasSugeridas[y]);
+				iNumLista++;
+		}
+		
+
+
+		for (int y = 0; y < iNumSugeridas; y++)
+		{
+			int frecuencia = 1;
+			for (int z = 0; z < iNumElementos; z++)
+			{
+				if (strcmp(szListaFinal[y], szPalabras[z]) == 0)
+				{
+					frecuencia++;
+				}
+			}
+			iPeso[y] = frecuencia;
+		}*/
+		char auxPalabras[TAMTOKEN];
+		int auxFrecuencia;
+		for (int pasada = 0; pasada < iNumSugeridas - 1; pasada++)
+		{
+			for (int elementos = 0; elementos < iNumSugeridas; elementos++)
+			{
+				if (iPeso[elementos] < iPeso[elementos + 1])
+				{
+					auxFrecuencia = iPeso[elementos];
+					strcpy_s(auxPalabras, TAMTOKEN,szListaFinal[elementos]);
+
+					iPeso[elementos] = iPeso[elementos + 1];
+					strcpy_s(szListaFinal[elementos], TAMTOKEN, szListaFinal[elementos + 1]);
+
+					iPeso[elementos + 1] = auxFrecuencia;
+					strcpy_s(szListaFinal[elementos + 1], TAMTOKEN, auxPalabras);
+				}
+			}
+		}
+
 }
 
 /*****************************************************************************************************************
